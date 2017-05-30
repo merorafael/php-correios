@@ -1,0 +1,42 @@
+{
+  "name": "mero/correios-integration",
+  "type": "library",
+  "description": "Integration with Correios Webservices",
+  "keywords": [ "Mero", "Brazil", "Correios", "Integration" ],
+  "homepage": "https://github.com/merorafael/php-correios",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Rafael Mello",
+      "email": "merorafael@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.9",
+    "ext-soap": "*"
+  },
+  "require-dev": {
+    "satooshi/php-coveralls": "~0.6.1",
+    "phpunit/phpunit": "~4.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mero\\Correios\\": "src/Mero/Correios"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mero\\Monolog\\": "tests/Mero/Correios"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.1.x-dev"
+    }
+  },
+  "scripts": {
+    "test": [
+      "phpunit"
+    ]
+  }
+}
