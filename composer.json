@@ -1,5 +1,5 @@
 {
-  "name": "mero/correios-integration",
+  "name": "mero/correios",
   "type": "library",
   "description": "Integration with Correios Webservices",
   "keywords": [ "Mero", "Brazil", "Correios", "Integration" ],
