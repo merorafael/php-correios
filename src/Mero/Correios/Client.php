@@ -5,6 +5,7 @@ namespace Mero\Correios;
 use Mero\Correios\Exception\AddressNotFoundException;
 use Mero\Correios\Exception\InvalidZipCodeException;
 use Mero\Correios\Model\Address;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class Client
 {
@@ -36,24 +37,33 @@ class Client
         if (strlen($zipCode) != 8) {
             throw new InvalidZipCodeException('The brazilian zip code should have exacly 8 characters.');
         }
-        try {
-            $wsdlConnection = $this->createWsdlConnection();
-            $address = $wsdlConnection->__soapCall('consultaCEP', [
-                'consultaCEP' => [
-                    'cep' => $zipCode
-                ]
-            ]);
 
-            return new Address(
-                $address->return->end,
-                $address->return->bairro,
-                $address->return->cidade,
-                $address->return->uf,
-                $address->return->cep
-            );
-        } catch (\SoapFault $e) {
-            throw new AddressNotFoundException($e->getMessage());
+        $cache = new FilesystemCache();
+        if (!$cache->has("mero_correios.{$zipCode}")) {
+            try {
+                $wsdlConnection = $this->createWsdlConnection();
+                $address = $wsdlConnection->__soapCall('consultaCEP', [
+                    'consultaCEP' => [
+                        'cep' => $zipCode
+                    ]
+                ]);
+
+                $address = new Address(
+                    $address->return->end,
+                    $address->return->bairro,
+                    $address->return->cidade,
+                    $address->return->uf,
+                    $address->return->cep
+                );
+                $cache->set("mero_correios.{$zipCode}", $address);
+
+                return $address;
+            } catch (\SoapFault $e) {
+                throw new AddressNotFoundException($e->getMessage());
+            }
         }
+
+        return $cache->get("mero_correios.{$zipCode}");
     }
 
     /**
