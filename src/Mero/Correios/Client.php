@@ -9,24 +9,31 @@ use Mero\Correios\Model\Address;
 class Client
 {
     /**
-     * Correios WSDL URI
-     */
-    const CORREIOS_WSDL_URI = "https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl";
-
-    /**
      * @var \SoapClient Correios WSDL Client
      */
-    protected $wsdl;
+    protected $wsdlClient;
 
     public function __construct()
     {
-        $this->wsdl = new \SoapClient(self::CORREIOS_WSDL_URI);
+        $this->wsdlClient = $this->createSoapClient();
+    }
+
+    /**
+     * Return the Correios SOAP client.
+     *
+     * @return \SoapClient SOAP client
+     */
+    protected function createSoapClient()
+    {
+        return new \SoapClient(
+            "https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl"
+        );
     }
 
     /**
      * Find address informations using the zip code.
      *
-     * @param string $zipCode Zip code
+     * @param string $zipCode Zip code without special characters
      *
      * @return Address Address informations
      *
@@ -35,11 +42,12 @@ class Client
      */
     public function findAddressByZipCode($zipCode)
     {
-        if (strlen($zipCode) != 9) {
-            throw new InvalidZipCodeException('The brazilian zip code should have exacly 9 characters.');
+        $zipCode = preg_replace('/[^0-9]/', '', $zipCode);
+        if (strlen($zipCode) != 8) {
+            throw new InvalidZipCodeException('The brazilian zip code should have exacly 8 characters.');
         }
         try {
-            $address = $this->wsdl->__soapCall('consultaCEP', [
+            $address = $this->wsdlClient->__soapCall('consultaCEP', [
                 'consultaCEP' => [
                     'cep' => $zipCode
                 ]
@@ -55,5 +63,17 @@ class Client
         } catch (\SoapFault $e) {
             throw new AddressNotFoundException($e->getMessage());
         }
+    }
+
+    /**
+     * Return the class name. Please, not use this method if you are using PHP 5.5 or above.
+     *
+     * @return string Class name
+     *
+     * @deprecated In PHP 5.5 or above you don't need to use this method. The native constant "::class" was implemented.
+     */
+    public static function className()
+    {
+        return get_called_class();
     }
 }
