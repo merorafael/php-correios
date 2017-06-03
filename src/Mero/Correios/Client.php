@@ -9,21 +9,11 @@ use Mero\Correios\Model\Address;
 class Client
 {
     /**
-     * @var \SoapClient Correios WSDL Client
-     */
-    protected $wsdlClient;
-
-    public function __construct()
-    {
-        $this->wsdlClient = $this->createSoapClient();
-    }
-
-    /**
      * Return the Correios SOAP client.
      *
      * @return \SoapClient SOAP client
      */
-    protected function createSoapClient()
+    protected function createWsdlConnection()
     {
         return new \SoapClient(
             "https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl"
@@ -47,7 +37,8 @@ class Client
             throw new InvalidZipCodeException('The brazilian zip code should have exacly 8 characters.');
         }
         try {
-            $address = $this->wsdlClient->__soapCall('consultaCEP', [
+            $wsdlConnection = $this->createWsdlConnection();
+            $address = $wsdlConnection->__soapCall('consultaCEP', [
                 'consultaCEP' => [
                     'cep' => $zipCode
                 ]

@@ -55,17 +55,12 @@ class ClientTest extends PHPUnitTestCase
     {
         $client = $this
             ->getMockBuilder(Client::className())
-            ->disableOriginalConstructor()
-            ->setMethods(["createSoapClient"])
+            ->setMethods(["createWsdlConnection"])
             ->getMock();
 
         $client
-            ->method("createSoapClient")
+            ->method("createWsdlConnection")
             ->willReturn($soapClientMocked);
-
-        $reflectedClass = new \ReflectionClass(Client::className());
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($client, []);
 
         return $client;
     }
@@ -75,8 +70,8 @@ class ClientTest extends PHPUnitTestCase
      */
     public function testInvalidZipCodeException()
     {
-        $wsdlClient = $this->createSoapClientMock();
-        $client = $this->createClientMock($wsdlClient);
+        $wsdlConnection = $this->createSoapClientMock();
+        $client = $this->createClientMock($wsdlConnection);
         $client->findAddressByZipCode("200430900");
     }
 
@@ -85,12 +80,12 @@ class ClientTest extends PHPUnitTestCase
      */
     public function testAddressNotFoundException()
     {
-        $wsdlClient = $this
+        $wsdlConnection = $this
             ->getMockBuilder("\SoapClient")
             ->disableOriginalConstructor()
             ->getMock();
 
-        $wsdlClient
+        $wsdlConnection
             ->method("__soapCall")
             ->willThrowException(new \SoapFault(
                 "soap:Server",
@@ -101,14 +96,14 @@ class ClientTest extends PHPUnitTestCase
                 ]
             ));
 
-        $client = $this->createClientMock($wsdlClient);
+        $client = $this->createClientMock($wsdlConnection);
         $client->findAddressByZipCode("20000000");
     }
 
     public function testFindAddressByZipCode()
     {
-        $wsdlClient = $this->createSoapClientMock();
-        $client = $this->createClientMock($wsdlClient);
+        $wsdlConnection = $this->createSoapClientMock();
+        $client = $this->createClientMock($wsdlConnection);
         $address = $client->findAddressByZipCode("22640102");
         $this->assertEquals("Avenida das Américas", $address->getAddress());
         $this->assertEquals("Barra da Tijuca", $address->getNeighborhood());
