@@ -13,8 +13,7 @@
   ],
   "require": {
     "php": ">=5.4.9",
-    "ext-soap": "*",
-    "symfony/cache": "~2.8|~3.0|~4.0"
+    "ext-soap": "*"
   },
   "require-dev": {
     "satooshi/php-coveralls": "~0.6.1",
@@ -27,7 +26,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Mero\\Monolog\\": "tests/Mero/Correios"
+      "Mero\\Correios\\": "tests/Mero/Correios"
     }
   },
   "extra": {
